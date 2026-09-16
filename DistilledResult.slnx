@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DistilledResult/DistilledResult.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DistilledResult.Tests/DistilledResult.Tests.csproj" />
+  </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/DistilledResult.Benchmarks/DistilledResult.Benchmarks.csproj" />
+  </Folder>
+</Solution>
