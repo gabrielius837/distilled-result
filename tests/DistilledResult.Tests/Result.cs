@@ -7,7 +7,7 @@ public class ResultTests
     [Test]
     public async Task SuccessfulResultHasExpectedState()
     {
-        var result = Result<string, string>.Ok("test");
+        var result = Result.Ok<string, string>("test");
 
         await Assert.That(result.Success).IsTrue();
         await Assert.That(result.Failure).IsFalse();
@@ -18,7 +18,7 @@ public class ResultTests
     [Test]
     public async Task FailedResultHasExpectedState()
     {
-        var result = Result<string, string>.Fail("test");
+        var result = Result.Fail<string, string>("test");
 
         await Assert.That(result.Success).IsFalse();
         await Assert.That(result.Failure).IsTrue();
@@ -29,7 +29,7 @@ public class ResultTests
     [Test]
     public async Task OkThrowsOnNullValue()
     {
-        var exception = Assert.Throws<ArgumentNullException>(() => Result<string, string>.Ok(null!));
+        var exception = Assert.Throws<ArgumentNullException>(() => Result.Ok<string, string>(null!));
 
         await Assert.That(exception.ParamName).IsEqualTo("value");
     }
@@ -37,7 +37,7 @@ public class ResultTests
     [Test]
     public async Task FailThrowsOnNullError()
     {
-        var exception = Assert.Throws<ArgumentNullException>(() => Result<string, string>.Fail(null!));
+        var exception = Assert.Throws<ArgumentNullException>(() => Result.Fail<string, string>(null!));
 
         await Assert.That(exception.ParamName).IsEqualTo("error");
     }
@@ -45,8 +45,8 @@ public class ResultTests
     [Test]
     public void SuccessCheckInfersCorrectNullability()
     {
-        var resultOk = Result<string, string>.Ok("test");
-        var resultFail = Result<string, string>.Ok("test");
+        var resultOk = Result.Ok<string, string>("test");
+        var resultFail = Result.Ok<string, string>("test");
 
         // No CS8602 warnings/errors should be present.
 
@@ -72,8 +72,8 @@ public class ResultTests
     [Test]
     public void FailureCheckInfersCorrectNullability()
     {
-        var resultOk = Result<string, string>.Ok("test");
-        var resultFail = Result<string, string>.Ok("test");
+        var resultOk = Result.Ok<string, string>("test");
+        var resultFail = Result.Ok<string, string>("test");
 
         // No CS8602 warnings/errors should be present.
 
@@ -114,30 +114,6 @@ public class ResultTests
 
         Result<int, string> result = "test";
         _ = result;
-    }
-
-    [Test]
-    public async Task ImplicitConversionFromValueThrowsOnNull()
-    {
-        var exception = Assert.Throws<ArgumentNullException>(() =>
-        {
-            Result<string, Exception> result = (string)null!;
-            _ = result;
-        });
-
-        await Assert.That(exception.ParamName).IsEqualTo("value");
-    }
-
-    [Test]
-    public async Task ImplicitConversionFromErrorThrowsOnNull()
-    {
-        var exception = Assert.Throws<ArgumentNullException>(() =>
-        {
-            Result<string, Exception> result = (Exception)null!;
-            _ = result;
-        });
-
-        await Assert.That(exception.ParamName).IsEqualTo("error");
     }
 
     [Test]

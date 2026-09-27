@@ -7,6 +7,15 @@
 | Exception_NotThrown | 1.186 μs | 0.0228 μs | 0.0263 μs | 1.192 μs |  1.01 | Same            |    0.04 | 0.0248 |     215 B |        0.87 |
 | Exception_Thrown    | 7.855 μs | 0.2720 μs | 0.7762 μs | 7.630 μs |  6.66 | Slower          |    0.68 | 0.1526 |    1324 B |        5.36 |
 
+To do: review results.
+
+| Method                     |        Mean | Ratio | MannWhitney(5%) |   Gen0 | Allocated | Alloc Ratio |
+| -------------------------- | ----------: | ----: | ---------------- | -----: | --------: | ----------: |
+| Task_AlreadyCompleted      |    64.58 ns |  1.00 | Baseline          | 0.0381 |     320 B |        1.00 |
+| ValueTask_AlreadyCompleted |    64.09 ns |  0.99 | Same              |      - |         - |        0.00 |
+| Task_GenuinelyPending      | 1,375.60 ns | 21.35 | Slower            | 0.0534 |     452 B |        1.41 |
+| ValueTask_GenuinelyPending | 1,500.41 ns | 23.29 | Slower            | 0.0706 |     605 B |        1.89 |
+
 ## Running
 
 ```

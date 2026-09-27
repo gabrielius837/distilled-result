@@ -1,4 +1,4 @@
 using BenchmarkDotNet.Running;
 using DistilledResult.Benchmarks;
 
-BenchmarkRunner.Run<ResultVsExceptionBenchmark>();
+BenchmarkSwitcher.FromTypes([typeof(ResultVsExceptionBenchmark), typeof(MapBindChainBenchmark)]).Run(args);

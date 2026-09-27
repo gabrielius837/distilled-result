@@ -3,13 +3,30 @@ using System.Diagnostics.CodeAnalysis;
 namespace DistilledResult;
 
 /// <summary>
+/// Factory methods for <see cref="Result{TValue, TError}"/>.
+/// </summary>
+public static class Result
+{
+    /// <summary>Creates a successful result.</summary>
+    public static Result<TValue, TError> Ok<TValue, TError>(TValue value)
+        where TValue : notnull
+        where TError : notnull
+        => new(value);
+
+    /// <summary>Creates a failed result.</summary>
+    public static Result<TValue, TError> Fail<TValue, TError>(TError error)
+        where TValue : notnull
+        where TError : notnull
+        => new(error);
+}
+
+/// <summary>
 /// Holds either a success value or an error — never both, and never neither.
 /// </summary>
 /// <remarks>
 /// <para>
 /// When <typeparamref name="TValue"/> and <typeparamref name="TError"/> are the same type, the
 /// two implicit conversions become indistinguishable and any use of one is ambiguous (CS0457).
-/// Such results can only be built through <see cref="Ok"/> and <see cref="Fail"/>.
 /// </para>
 /// <para>
 /// When <typeparamref name="TValue"/> or <typeparamref name="TError"/> should carry nothing,
@@ -22,26 +39,20 @@ public readonly struct Result<TValue, TError>
     where TValue : notnull
     where TError : notnull
 {
-    /// <summary>Creates a successful result. Use <see cref="Ok"/> instead.</summary>
-    private Result(TValue value)
+    /// <summary>Creates a successful result.</summary>
+    public Result(TValue value)
     {
-        if (value is null)
-        {
-            throw new ArgumentNullException(nameof(value));
-        }
+        ArgumentNullException.ThrowIfNull(value);
 
         Value = value;
         Error = default;
         Success = true;
     }
 
-    /// <summary>Creates a failed result. Use <see cref="Fail"/> instead.</summary>
-    private Result(TError error)
+    /// <summary>Creates a failed result.</summary>
+    public Result(TError error)
     {
-        if (error is null)
-        {
-            throw new ArgumentNullException(nameof(error));
-        }
+        ArgumentNullException.ThrowIfNull(error);
 
         Value = default;
         Error = error;
@@ -88,16 +99,6 @@ public readonly struct Result<TValue, TError>
     [MemberNotNullWhen(true, nameof(Error))]
     public bool Failure => !Success;
 
-    /// <summary>Creates a successful result carrying <paramref name="value"/>.</summary>
-    /// <param name="value">The success value.</param>
-    /// <returns>A result for which <see cref="Success"/> is <see langword="true"/>.</returns>
-    public static Result<TValue, TError> Ok(TValue value) => new(value);
-
-    /// <summary>Creates a failed result carrying <paramref name="error"/>.</summary>
-    /// <param name="error">The error.</param>
-    /// <returns>A result for which <see cref="Success"/> is <see langword="false"/>.</returns>
-    public static Result<TValue, TError> Fail(TError error) => new(error);
-
     /// <summary>
     /// Converts a value into a successful result.
     /// </summary>
@@ -105,7 +106,7 @@ public readonly struct Result<TValue, TError>
     /// <remarks>
     /// Unusable when <typeparamref name="TValue"/> and <typeparamref name="TError"/> are the
     /// same type: both operators then have identical signatures and every conversion is
-    /// ambiguous (CS0457). Call <see cref="Ok"/> explicitly in that case.
+    /// ambiguous (CS0457). Call <see cref="Result.Ok"/> explicitly in that case.
     /// </remarks>
     public static implicit operator Result<TValue, TError>(TValue value) => new(value);
 
@@ -116,7 +117,34 @@ public readonly struct Result<TValue, TError>
     /// <remarks>
     /// Unusable when <typeparamref name="TValue"/> and <typeparamref name="TError"/> are the
     /// same type: both operators then have identical signatures and every conversion is
-    /// ambiguous (CS0457). Call <see cref="Fail"/> explicitly in that case.
+    /// ambiguous (CS0457). Call <see cref="Result.Fail"/> explicitly in that case.
     /// </remarks>
     public static implicit operator Result<TValue, TError>(TError error) => new(error);
+
+    /// <inheritdoc/>
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Result<TValue, TError> other || Success != other.Success)
+        {
+            return false;
+        }
+
+        if (Success && other.Success)
+        {
+            return EqualityComparer<TValue>.Default.Equals(Value, other.Value);
+        }
+
+        return Failure && other.Failure && EqualityComparer<TError>.Default.Equals(Error, other.Error);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode() => Success ? Value.GetHashCode() : Error.GetHashCode();
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+        var result = Success ? Value.ToString() : Error.ToString();
+
+        return result ?? string.Empty;
+    }
 }
